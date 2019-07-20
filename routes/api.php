@@ -13,4 +13,4 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::post('/resources', 'Api/SlackResourceController@store');
+Route::post('/resources', 'Api\SlackResourceController@store');
