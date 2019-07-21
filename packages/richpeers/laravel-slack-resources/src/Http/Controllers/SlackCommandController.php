@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace Richpeers\LaravelSlackResources\Http\Controllers;
 
 use App\Exceptions\SlackResourceException;
 use App\Http\Controllers\Controller;
-use Richpeers\LaravelSlackResources\Models\SlackResource;
-use Richpeers\LaravelSlackResources\Models\SlackTag;
+use App\Models\SlackResources\SlackResource;
+use App\Models\SlackResources\SlackTag;
 use Illuminate\Http\Request;
 
 class SlackCommandController extends Controller
@@ -26,9 +26,6 @@ class SlackCommandController extends Controller
      */
     public function __construct(SlackResource $slackResource, SlackTag $slackTag)
     {
-        //authorize slack signing secret
-        $this->middleware('slack.signing.secret');
-
         $this->slackResource = $slackResource;
         $this->slackTag = $slackTag;
     }

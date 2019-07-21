@@ -1,0 +1,14 @@
+{
+    "name": "rich/laravel-slack-resources",
+    "description": "Store url resources from slack using /resource url tag",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rich Peers",
+            "email": "richpeers1@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
