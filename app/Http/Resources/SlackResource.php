@@ -16,7 +16,7 @@ class SlackResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'meta' => $this->meta,
+            'meta' => is_array($this->meta) ? $this->meta : json_decode($this->meta),
             'url' => $this->url
         ];
     }
