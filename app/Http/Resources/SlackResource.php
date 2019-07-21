@@ -14,6 +14,10 @@ class SlackResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'meta' => $this->meta,
+            'url' => $this->url
+        ];
     }
 }

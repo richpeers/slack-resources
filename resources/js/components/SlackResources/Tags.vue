@@ -3,7 +3,7 @@
         <h3 class="text-primary">Tags</h3>
         <button v-for="item in tags"
                 type="button"
-                class="btn btn-outline-primary"
+                class="btn btn-outline-primary mr-2 mb-2"
                 :class="{'active': item.id === tag}"
                 @click.prevent="setTag(item.id)">
             {{item.body}}
