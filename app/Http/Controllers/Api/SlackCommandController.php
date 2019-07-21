@@ -2,39 +2,94 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
+use App\Exceptions\SlackResourceException;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log;
+use App\Models\SlackResources\SlackResource;
+use App\Models\SlackResources\SlackTag;
+use Illuminate\Http\Request;
 
 class SlackCommandController extends Controller
 {
-    public function __construct()
+    /**
+     * @var SlackResource
+     */
+    protected $slackResource;
+    /**
+     * @var SlackTag
+     */
+    protected $slackTag;
+
+    /**
+     * SlackCommandController constructor.
+     * @param SlackResource $slackResource
+     * @param SlackTag $slackTag
+     */
+    public function __construct(SlackResource $slackResource, SlackTag $slackTag)
     {
+        //authorize slack signing secret
         $this->middleware('slack.signing.secret');
+
+        $this->slackResource = $slackResource;
+        $this->slackTag = $slackTag;
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws SlackResourceException
+     */
     public function store(Request $request)
     {
-        //authorize using slack signing secrets
+        $value = $request->input('text');
 
-        // validate text input
+        // check if not a string
+        if (!is_string($value)) {
+            throw new SlackResourceException('URL required');
+        }
 
-        // record the resource and tags
+        $value = \trim($value);
 
-        //return response with success message
+        // check if empty
+        if ($value === '') {
+            throw new SlackResourceException('URL required');
+        }
 
-//  'token' => 'nskhc9VgNmcVzJi2KbT5nssH',
-//  'team_id' => 'TL94YDXJP',
-//  'team_domain' => 'richpeers1',
-//  'channel_id' => 'CLLGCL1BJ',
-//  'channel_name' => 'general',
-//  'user_id' => 'UL94HCKLJ',
-//  'user_name' => 'richpeers1',
-//  'command' => '/resource',
-//  'text' => 'https://google.com google',
-//  'response_url' => 'https://hooks.slack.com/commands/TL94YDXJP/700920207008/JXeSKwJ2sRnMij9k6NAerGe1',
-//  'trigger_id' => '702781073639.689168473635.f9502abd7ccd156a8995c93709f72682',
+        // explode value by one or more spaces or tabs
+        $parts = \preg_split('/\s+/', $value, -1, PREG_SPLIT_NO_EMPTY);
 
-        Log::info($request->all());
+        // url is first part of the array
+        $url = \array_shift($parts);
+
+        // check for invalid url
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new SlackResourceException('Invalid url.');
+        }
+
+        // store the url resource
+        $resource = $this->slackResource->create([
+            'url' => $url,
+            'meta' => \json_encode($request->all())
+        ]);
+
+        // lowercase tags
+        $tags = \array_map('strtolower', $parts);
+
+        // associate each tag with the resource
+        foreach ($tags as $tag) {
+            $tag = $this->slackTag->firstOrCreate(['body' => $tag]);
+            $resource->tags()->syncWithoutDetaching($tag->id);
+        }
+
+        $message = $url . !empty($tags) ?: ' tagged with: ' . \implode(', ', $tags);
+
+        //return response with message
+        return response()->json([
+            'text' => 'Resource successfully saved',
+            'attachments' => [
+                (object)[
+                    'text' => $message
+                ]
+            ]
+        ], 200);
     }
 }
