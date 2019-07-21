@@ -3,26 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Richpeers\LaravelSlackResources\Models\SlackTag;
 
 class HomeController extends Controller
 {
     /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    /**
      * Show the application dashboard.
      *
+     * @param SlackTag $slackTag
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(SlackTag $slackTag)
     {
-        return view('home');
+        $tags = $slackTag->get();
+
+        return view('welcome', [
+            'tags' => $tags
+        ]);
     }
 }

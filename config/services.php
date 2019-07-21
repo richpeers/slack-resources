@@ -42,10 +42,5 @@ return [
             'secret' => env('STRIPE_WEBHOOK_SECRET'),
             'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
         ],
-    ],
-
-    'slack' => [
-        'signing_secret' => env('SLACK_SIGNING_SECRET')
     ]
-
 ];
